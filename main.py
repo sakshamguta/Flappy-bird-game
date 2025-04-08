@@ -1,4 +1,3 @@
-# Flappy-bird-game
 from flask import Flask, request
 from flask_socketio import SocketIO, emit
 import random
@@ -38,7 +37,7 @@ def handle_ready():
     if request.sid in players:
         players[request.sid]['ready'] = True
         emit('player_ready', request.sid, broadcast=True)
-
+        
         if all(player['ready'] for player in players.values()) and len(players) > 1:
             start_game()
 
@@ -71,10 +70,9 @@ def handle_update(data):
 
         for pipe in pipes:
             pipe['x'] -= 3
-        pipes[:] = [p for p in pipes if p['x'] > -50]
-        while len(pipes) < 3:
-            last_x = max(p['x'] for p in pipes) if pipes else 400
-            add_pipe(last_x + 300)
+            if pipe['x'] < -50:
+                pipes.remove(pipe)
+                add_pipe(600)
 
         emit('game_update', {'players': players, 'pipes': pipes}, broadcast=True)
 
